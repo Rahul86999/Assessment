@@ -4,6 +4,8 @@ from . models import *
 
 admin.site.register(AffiliationType)
 admin.site.register(School)
+admin.site.register(Student)
+admin.site.register(Teacher)
 
 
 class AssignTestAdmin(admin.ModelAdmin):

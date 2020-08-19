@@ -34,6 +34,7 @@ def create_test_view(request):
 
 @csrf_exempt
 def add_basic_view(request):
+	print("request test",request.POST)
 	year = request.POST.get('year')
 	quater = request.POST.get('quater')
 	package = request.POST.get('package')
@@ -86,7 +87,6 @@ def add_basic_view(request):
 				test_lang = i
 			)
 	
-
 	return JsonResponse({'id':test.id})
 
 @csrf_exempt

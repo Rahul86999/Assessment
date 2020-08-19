@@ -122,6 +122,8 @@ def atl_login_view(request):
 
 		if request.POST.get('type') =='Teacher':
 			teacherid = request.POST.get('teacherid')
+			ab= Teacher.objects.filter(user__username = username, school_id = schoolid,id=teacherid)
+			print("teacher",ab)
 			if (Teacher.objects.filter(user__username = username, school_id = schoolid,id=teacherid).count() ==1):
 				print(username,password)
 				user  = authenticate(username=username,password=password)
@@ -141,8 +143,6 @@ def atl_login_view(request):
 		else:
 			studentid = request.POST.get('studentid')
 			print(studentid)
-			test = Student.objects.filter(user__username = username, school_id = schoolid,id=studentid)
-			print("test",test)
 			if (Student.objects.filter(user__username = username, school_id = schoolid,id=studentid).count() ==1):
 				user  = authenticate(username=username,password=password)
 				if user!=None:

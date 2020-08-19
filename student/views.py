@@ -4,8 +4,11 @@ from django.contrib.auth.decorators import login_required
 import datetime
 from datetime import timedelta,date
 from django.http import HttpResponse
-from assessment.models import QuestionCategory
+from assessment.models import QuestionCategory,Options,Question
+from django.contrib import messages
+
 # Create your views here.
+
 @login_required
 def student_home_view(request):
 	
@@ -74,13 +77,9 @@ def start_test_view(request):
 	test.order_by('test_datetime')
 
 	if test.count()>=1:
-		t = test.order_by('test_datetime')[0]
-
-	
+		t = test.order_by('test_datetime')[0]	
 	else:
 		return redirect('student_home')
-
-
 
 	print(test)
 	return render(request,'student/test.html')
@@ -89,14 +88,31 @@ def start_test_view(request):
 def question_display_view(request):
 	test = AssignTest.objects.filter(student__user=request.user,test_status='started')|AssignTest.objects.filter(elearning_stu__user=request.user,test_status='started')
 	test.order_by('test_datetime')
-
+	options_ans = request.POST.get('option')
+	print("anssss============",options_ans)
+	
 	if test.count()==1:
 		t = test.order_by('test_datetime')[0]
-		category = QuestionCategory.objects.filter(test=test[0].test_paper)
-		print(category)
-		return render(request,'student/english.html',{'category':category})
+		print("test[0].test_paper",test[0].test_paper)
+		questions = Question.objects.filter(test=test[0].test_paper)
+		for question in questions:
+			print("quation id",question.id)
+		options = Options.objects.filter(question=question.id)
+		print("question",options)
+		
+		for option in options:
+			print("oppppp",option.option1)
 
-	
+		ans_match = options.filter(answer=options_ans)
+		print("tttttttt",ans_match)
+		if ans_match:
+			print("answer is correct")
+			messages.success(request, 'Answer is correct')
+		else:
+			print("answer is incorrect")
+			messages.warning(request, 'Incorrect answer, Try Again !')
+
+		return render(request,'student/english.html',{'options':options})
 	else:
 		return redirect('student_home')
 

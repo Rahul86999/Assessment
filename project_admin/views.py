@@ -15,7 +15,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 
 
-
 User = get_user_model()
 letters_and_digits = string.ascii_letters + string.digits
 
@@ -30,6 +29,7 @@ def admin_index_view(request):
 
 	else:
 		return redirect('admin_login')
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def assessment_manage_view(request):
@@ -47,6 +47,7 @@ def assessment_manage_view(request):
 		users = User.objects.filter(user_type__role_name='Assessment')
 		form = SignUpForm()
 		return render(request,'project_admin/assessment_manage.html',{'form':form,'users':users})
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def school_manage_view(request):
@@ -74,9 +75,11 @@ def school_manage_view(request):
 		school = School.objects.all()
 		return render(request,'project_admin/school_manage.html',{'form':form,'school':school})
 
+
 @user_passes_test(lambda u: u.is_superuser)
 def detail_school_view(request,id):
 	return render(request,'project_admin/school_detail.html',{'id':id})
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def add_student_view(request,id):
@@ -103,13 +106,10 @@ def add_student_view(request,id):
 		else:
 			
 			return render(request,'project_admin/createstudent.html',{'id':id,'form':form})
-
-		
-			
-
 	else:
 		form = StudentReg(school_id=id)
 		return render(request,'project_admin/createstudent.html',{'id':id,'form':form})
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def add_teacher_view(request,id):
@@ -136,8 +136,6 @@ def add_teacher_view(request,id):
 		else:
 			
 			return render(request,'project_admin/createstudent.html',{'id':id,'form':form})
-
-
 	else:
 		form = TeacherReg()
 		return render(request,'project_admin/createstudent.html',{'id':id,'form':form})
@@ -167,18 +165,18 @@ def add_individual_student_view(request):
 		else:
 			
 			return render(request,'project_admin/createstudent.html',{'id':id,'form':form})
-
-
 	else:
 		form = IndividualStudentReg()
 		stu = IndividualStudents.objects.all()
 		return render(request,'project_admin/individual_student_list.html',{'stu':stu,'form':form})
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def student_list_view(request,id):
 	stu = Student.objects.filter(school_id=id)
 	print(stu)
 	return render(request,'project_admin/student_list.html',{'stu':stu,'id':id})
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def teacher_list_view(request,id):
@@ -196,6 +194,7 @@ def test_assign_view(request,id):
 	standard = Student.objects.all().values('standard').distinct()
 	return render(request,'project_admin/stu_test_assign.html',{'standard':standard,'id':id})
 	
+
 @user_passes_test(lambda u: u.is_superuser)	
 def authority_manage_view(request):
 	if request.method=='POST':
@@ -257,8 +256,6 @@ def assign_test_paper(request):
 		st_class = request.POST.get('st_class')
 		print(stu_name)
 			
-
-
 		papers = Test.objects.filter(test_year=year,package = package,standard__standard_name=paper_standard,quater=quater)
 		
 		if papers.count() >= 1:
@@ -299,8 +296,6 @@ def assign_test_paper(request):
 		else:
 			messages.error(request,'Test Paper Not Available')
 			return redirect('assign_test_paper')
-
-
 	else:
 		year = Test.objects.values('test_year').distinct()
 		return render(request,'project_admin/assignTestPaper.html',{'year':year})
