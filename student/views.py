@@ -6,7 +6,9 @@ from datetime import timedelta,date
 from django.http import HttpResponse
 from assessment.models import QuestionCategory,Options,Question
 from django.contrib import messages
-
+from django.core import serializers
+from django.http import JsonResponse
+from django.views import View
 # Create your views here.
 
 @login_required
@@ -89,34 +91,72 @@ def question_display_view(request):
 	test = AssignTest.objects.filter(student__user=request.user,test_status='started')|AssignTest.objects.filter(elearning_stu__user=request.user,test_status='started')
 	test.order_by('test_datetime')
 	options_ans = request.POST.get('option')
-	print("anssss============",options_ans)
+	# print("answer============",options_ans)
 	
 	if test.count()==1:
 		t = test.order_by('test_datetime')[0]
 		print("test[0].test_paper",test[0].test_paper)
-		questions = Question.objects.filter(test=test[0].test_paper)
-		for question in questions:
-			print("quation id",question.id)
-		options = Options.objects.filter(question=question.id)
-		print("question",options)
+		options = Options.objects.filter(question__test=test[0].test_paper)
 		
-		for option in options:
-			print("oppppp",option.option1)
-
-		ans_match = options.filter(answer=options_ans)
-		print("tttttttt",ans_match)
-		if ans_match:
-			print("answer is correct")
-			messages.success(request, 'Answer is correct')
-		else:
-			print("answer is incorrect")
-			messages.warning(request, 'Incorrect answer, Try Again !')
-
 		return render(request,'student/english.html',{'options':options})
 	else:
 		return redirect('student_home')
 
-	
+class QuestionDisplay(View):
+	def post(self,request):
+		print("ajax")
+		test = AssignTest.objects.filter(student__user=request.user,test_status='started')|AssignTest.objects.filter(elearning_stu__user=request.user,test_status='started')
+		test.order_by('test_datetime')
+		options_ans = request.POST.get('option')
+		print("answer============",options_ans)
+		answer_id = request.POST.get('answer_id')
+		print("answer===answer_id=========",answer_id)
+		option1 = "Transistor"
+		if test.count()==1:
+			t = test.order_by('test_datetime')[0]
+			print("test[0].test_paper",test[0].test_paper)
+			options = Options.objects.filter(question__test=test[0].test_paper)
+			print("opionnjhfdbfhj",options)
+			ans_match = options.filter(answer=options_ans)
+			print("ans_match",ans_match)
+			for i in ans_match:
+				print("iiiii",i.id)
+				answer_point = options.get(id=i.id)
+				print("ans answer_point====",answer_point)
+			incorect_value = 0.0
+			corect_value = 0.0
+			total = 0.0
+			if ans_match:
+				print("answer is correct")
+				# messages.success(request, 'Answer is correct')
+				corect = answer_point.ans_point
+				corect_value = corect +1
+				print("corect_value",corect_value)
+				answer_point.ans_point = corect_value
+				answer_point.save()
+			else:
+				ans_match = options.filter(option1=option1)
+				print("ans_match  ifffffffff=",ans_match)
+				for data in ans_match:
+					print("eslse  iiiii",data.id)
+					answer_point = options.get(id=data.id)
+					print("========= answer_point====",answer_point)
+					corect=answer_point.ans_point
+					print("Incorrect answer, Try Again !")
+					incorect_value = incorect_value - 0.25
+					print("incorect_value",incorect_value)
+					answer_point.ans_point = incorect_value + corect
+					answer_point.save()
+				# messages.warning(request, 'Incorrect answer, Try Again !')
+			total = corect_value + incorect_value
+			print("corect_value",corect_value,"incorect_value",incorect_value,"total=====",total)
+			total2 = corect_value - incorect_value
+			print("corect_value",corect_value,"incorect_value",incorect_value,"total2222==========",total2)
+			data = total		
+			return JsonResponse(data,safe=False)
+		else:
+			return JsonResponse({'status':'False'})
+
 @login_required
 def past_test_view(request):
 	return render(request,'student/past_test.html')

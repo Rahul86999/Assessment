@@ -39,18 +39,28 @@
                   {% endfor %}
                </div>
             </div>
+            {% if options %}
             <div id="container_demo" >
                <!-- hidden anchor to stop jump http://www.css3create.com/Astuce-Empecher-le-scroll-avec-l-utilisation-de-target#wrap4  -->
                <a class="hiddenanchor" id="toregister"></a>
                <a class="hiddenanchor" id="tologin"></a>
+               {% for option in options %}
                <div id="wrapper">
-                  <div id="login" class="animate form">
+                {% if forloop.counter == 1 %}
+                  <div id="login" class="animate form ">
+                    
                      <form  method="post">
+                         <input type="hidden" name="answer_id" value="{{option.id}}">
                         {% if messages %}
                         <ul class="messages">
                             {% for message in messages %}
-                            <li  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
-                            {% endfor %}
+                            <div class="alert alert-success">
+                                <a class="close" href="#" data-dismiss="alert">×</a>
+
+                                {{ message }}
+
+                            </div>
+                        {% endfor %}
                         </ul>
                         {% endif %}
                         {% csrf_token %}
@@ -58,52 +68,106 @@
                         <audio controls style="width:70%">
                            <source src="q1.mp3" type="audio/mp3">
                         </audio>
-                        {% for option in options %}
+                       
                         <p> 
                            <label> {{option.question.question_title}} </label>
                         </p>
-                        <input type="radio" name="option" value="{{option.option1}}" style="margin-top:5px;"> {{option.option1}}</br>
+                        <input type="radio" name="option" value="{{option.option1}}" style="margin-top:5px;" required> {{option.option1}}</br>
                         <input type="radio" name="option" value="{{option.option2}}" style="margin-top:10px;"> {{option.option2}}</br>
                         <input type="radio" name="option" value="{{option.option3}}" style="margin-top:10px;"> {{option.option3}}</br>
                         <input type="radio" name="option" value="{{option.option4}}" style="margin-top:10px;"> {{option.option4}}</br></br> 
-                        {% endfor %}
+                       
                         <p class="change_link">								
-                           <a href="#toregister" class="to_register" type="submit">Submit</a>
-                           <!-- <button type="submit">Submit</button> -->
+                           <!-- <a href="#toregister" class="to_register" type="submit">Submit</a> -->
+                           <button class="to_register" type="submit" id="submitform">Submit</button>
                            <a href="#toregister" class="to_register">Skip</a>										
                         </p>
                         
                      </form>
                   </div>
+                  {% else %}
                   <div id="register" class="animate form">
-                     <form  method="post" autocomplete="on">
-                          {% csrf_token %}
-                        <h1> Question-2</h1>
-                        <audio controls style="width:70%" >
-                           <source src="q2.mp3" type="audio/mp3">
+                    
+                    <form  method="post">
+                     <input type="hidden" name="answer_id" value="{{option.id}}">
+                        {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                            <div class="alert alert-success">
+                                <a class="close" href="#" data-dismiss="alert">×</a>
+
+                                {{ message }}
+
+                            </div>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% csrf_token %}
+                        <h1>Question-1</h1>
+                        <audio controls style="width:70%">
+                           <source src="q1.mp3" type="audio/mp3">
                         </audio>
+                       
                         <p> 
-                           <label>Blue is what number on the resistor color code?</label>
+                           <label> {{option.question.question_title}} </label>
                         </p>
-                        <p> 
-                           <input type="radio" name="option" value="size" style="margin-top:5px;">  4</br>
-                           <input type="radio" name="option" value="Gravity" style="margin-top:10px;"> 1</br>
-                           <input type="radio" name="option" value="Functionality" style="margin-top:10px;"> 2</br>
-                           <input type="radio" name="option" value="Quality" style="margin-top:10px;"> 6</br></br>
-                        </p>
-                        <p class="change_link">  
+                        <input type="radio" name="option" value="{{option.option1}}" style="margin-top:5px;" required> {{option.option1}}</br>
+                        <input type="radio" name="option" value="{{option.option2}}" style="margin-top:10px;" required> {{option.option2}}</br>
+                        <input type="radio" name="option" value="{{option.option3}}" style="margin-top:10px;" required> {{option.option3}}</br>
+                        <input type="radio" name="option" value="{{option.option4}}" style="margin-top:10px;" required> {{option.option4}}</br></br> 
+                       
+                        <p class="change_link">								
+                           <!-- <a href="#toregister" class="to_register" type="submit">Submit</a> -->
+                           <button class="to_register" type="submit">Submit</button>
                            <a href="#tologin" class="to_register">Back </a>
-                           <a href="#tologin" class="to_register">Submit </a>
-                           <a href="#tologin" class="to_register">Skip </a>
+                           <a href="#toregister" class="to_register">Skip</a>										
                         </p>
+                        
                      </form>
                   </div>
+                  {% endif %}
                </div>
+               {% endfor %}
             </div>
+            {% endif %}
          </section>
       </div>
    </body>
-   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+   <script>
+$(document).ready(function () {
+    $("form").submit(function(e) {
+		e.preventDefault();
+		$form = $(this)
+		var formData = new FormData(this);
+        console.log('form',formData)
+       
+		$.ajax({
+			type: 'POST',
+			url: '{% url "question_ans_display" %}',
+			data: formData,
+			processData: false,
+			contentType: false,
+			dataType: 'json',
+			success: function (data) {
+             console.log('data',data)
+         
+         $('#success_message_create').fadeIn();
+         setTimeout(function() {
+				setTimeout(function() {
+					$('#success_message_create').fadeOut("slow");
+				}, 2000);
+        //  window.location.reload();
+         },1000);
+			}
+		});
+		$('form#addUser').trigger("reset");
+		return false;
+	});
+
+});
+   </script>
+   <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script> -->
 </html>

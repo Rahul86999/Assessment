@@ -8,5 +8,6 @@ urlpatterns = [
 	path('cancel/Test/<int:id>',views.cancel_test_view,name='cancel_test'),
 	path('start/Test/',views.start_test_view,name='start_test'),
 	path('assessment/',views.question_display_view,name='display_question'),
+	path('question/display/',views.QuestionDisplay.as_view(),name='question_ans_display'),
 	
 ]

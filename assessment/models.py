@@ -75,6 +75,7 @@ class Options(models.Model):
 	option3 = models.CharField(max_length=500,null=True,blank=True)
 	option4 = models.CharField(max_length=500,null=True,blank=True)
 	is_valid = models.BooleanField()
+	ans_point = models.FloatField(null=True, blank=True, default=0)
 
 
 class QuestionHistory(models.Model):
